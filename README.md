@@ -1,6 +1,6 @@
 # grunt-nexus-release
 
-> release zip artefacts to a Nexus server
+> release zip artifacts to a Nexus server
 
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
@@ -164,7 +164,7 @@ Files may be specified using any of the supported [Grunt file mapping formats](h
 
 #### Default Options
 
-'''js
+```js
 nexus_release: {
             options: {
                 groupId: 'com.example.ex',
