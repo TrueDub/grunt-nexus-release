@@ -86,16 +86,17 @@ module.exports = function (grunt) {
         grunt.config.set('maven.install-file.options', options);
 
         grunt.task.run(
+            'nexus_release:gitstatus',
             'nexus_release:version:' + options.version,
+            'nexus_release:gitcommit:' + '[nexus_release] release ' + options.version,
             'nexus_release:gittag:' + options.artifactId + '-' + options.version,
+            'nexus_release:gitpush',
             'nexus_release:package',
             'nexus_release:deploy-file',
-            'nexus_release:version:' + options.nextVersion
+            'nexus_release:version:' + options.nextVersion,
+            'nexus_release:gitcommit:' + '[nexus_release] prepare for next development iteration',
+            'nexus_release:gitpush'
         );
-
-        grunt.task.run('nexus_release:gitcommit');
-
-        grunt.task.run('nexus_release:gitpush');
 
     }
 
@@ -187,6 +188,21 @@ module.exports = function (grunt) {
         });
     });
 
+    grunt.registerTask('nexus_release:gitstatus', 'checks git for uncommitted changes', function () {
+        var done = this.async();
+
+        grunt.verbose.write('checking git for uncommitted changes');
+
+        gitStatus(function (err) {
+            if (err) {
+                grunt.log.error().error('git status command failed');
+            } else {
+                grunt.log.writeln('Repo is clean');
+            }
+            done(err);
+        });
+    });
+
     grunt.registerTask('nexus_release:gitpush', 'Pushes to git', function () {
         var done = this.async();
 
@@ -202,12 +218,12 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask('nexus_release:gitcommit', 'Commits changes to git', function () {
+    grunt.registerTask('nexus_release:gitcommit', 'Commits changes to git', function (message) {
         var done = this.async();
 
-        grunt.verbose.write('Committing to git');
+        grunt.verbose.write('Committing to git: ' + message);
 
-        gitCommit(function (err) {
+        gitCommit(message, function (err) {
             if (err) {
                 grunt.log.error().error('Failed to commit changes to git');
             } else {
@@ -247,9 +263,26 @@ module.exports = function (grunt) {
         });
     }
 
-    function gitCommit(fn) {
-        grunt.util.spawn({cmd: 'git', args: ['commit','-a','-m','[nexus_release] prepare for next development iteration']}, function (err, result, code) {
+    function gitCommit(message, fn) {
+        grunt.util.spawn({
+            cmd: 'git',
+            args: ['commit', '-a', '-m', message]
+        }, function (err, result, code) {
             fn(err);
+        });
+    }
+
+    function gitStatus(fn) {
+        grunt.util.spawn({cmd: 'git', args: ['status', '--porcelain']}, function (err, result, code) {
+            if (err) {
+                fn(err);
+            } else {
+                if (result.stdout != null) {
+                    grunt.log.writeln('uncommitted changes!');
+                    grunt.log.error().error(result.stdout);
+                    fn(err);
+                }
+            }
         });
     }
 
