@@ -17,6 +17,16 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('grunt-nexus-release');
 ```
 
+##Acknowledgement
+This plugin is a copy of the [grunt-maven-tasks](https://github.com/smh/grunt-maven-tasks) plugin. It has been amended to more closely follow the cadence of the Java maven-release-plugin. This plugin operatates as follows:
+
+1. Check that there are no uncommitted changes
+2. Remove the -SNAPSHOT suffix from the version number.
+3. Commit the version number changes, tag the code, then push.
+4. Release the constructed artifact to Nexus.
+5. Up the version number (patch level) and restore the -SNAPSHOT suffix.
+6. Commit the version number changes, then push.
+
 ## The "nexus_release" task
 
 ### Overview
