@@ -1,7 +1,7 @@
 {
   "name": "grunt-nexus-release",
   "description": "release zip artefacts to a Nexus server",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/TrueDub/grunt-nexus-release",
   "author": {
     "name": "Jim Gallagher",
