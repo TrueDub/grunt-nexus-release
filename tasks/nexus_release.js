@@ -193,13 +193,18 @@ module.exports = function (grunt) {
 
         grunt.verbose.write('checking git for uncommitted changes');
 
-        gitStatus(function (err) {
+        gitStatus(function (err, result) {
             if (err) {
                 grunt.log.error().error('git status command failed');
+                done(err);
             } else {
-                grunt.log.writeln('Repo is clean');
+                if (result.stdout) {
+                    grunt.fail.fatal('uncommitted changes!' + result.stdout);
+                } else {
+                    grunt.log.writeln('Repo is clean');
+                    done();
+                }
             }
-            done(err);
         });
     });
 
@@ -274,15 +279,7 @@ module.exports = function (grunt) {
 
     function gitStatus(fn) {
         grunt.util.spawn({cmd: 'git', args: ['status', '--porcelain']}, function (err, result, code) {
-            if (err) {
-                fn(err);
-            } else {
-                if (result.stdout != null) {
-                    grunt.log.writeln('uncommitted changes!');
-                    grunt.log.error().error(result.stdout);
-                    fn(err);
-                }
-            }
+            fn(err, result);
         });
     }
 
