@@ -22,11 +22,12 @@ module.exports = function (grunt) {
 
         options.goal = options.goal || this.target;
         options.commitPrefix = options.commitPrefix || '%s';
+        options.branch = options.branch || 'develop';
 
         var pkg = grunt.file.readJSON(options.versionFile || 'package.json');
 
         requireOptionProps(options, ['url']);
-        release(this, pkg, version);
+        release(this, pkg, version, options.branch);
 
     });
 
@@ -49,13 +50,14 @@ module.exports = function (grunt) {
         }
     }
 
-    function release(task, pkg, version) {
+    function release(task, pkg, version, branch) {
         var options = task.options({
             artifactId: pkg.name,
             packaging: pkg.packaging
         });
 
         options.version = version || pkg.version.substr(0, pkg.version.length - '-SNAPSHOT'.length);
+        options.branch = branch;
 
         if (options.nextVersion === 'null-SNAPSHOT') {
             grunt.fail.fatal('Failed to determine next development version ' +
@@ -90,12 +92,12 @@ module.exports = function (grunt) {
             'nexus_release:version:' + options.version,
             'nexus_release:gitcommit:' + '[nexus_release] release ' + options.version,
             'nexus_release:gittag:' + options.artifactId + '-' + options.version,
-            'nexus_release:gitpush',
+            'nexus_release:gitpush:' + options.branch,
             'nexus_release:package',
             'nexus_release:deploy-file',
             'nexus_release:version:' + options.nextVersion,
             'nexus_release:gitcommit:' + '[nexus_release] prepare for next development iteration',
-            'nexus_release:gitpush'
+            'nexus_release:gitpush:' + options.branch
         );
 
     }
@@ -208,12 +210,12 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask('nexus_release:gitpush', 'Pushes to git', function () {
+    grunt.registerTask('nexus_release:gitpush', 'Pushes to git', function (branch) {
         var done = this.async();
 
-        grunt.verbose.write('Pushing to git');
+        grunt.verbose.write('Pushing to git branch ' + branch);
 
-        gitPush(function (err) {
+        gitPush(branch, function (err) {
             if (err) {
                 grunt.log.error().error('Failed to push new version to remote');
             } else {
@@ -253,11 +255,12 @@ module.exports = function (grunt) {
         });
     });
 
-    function gitPush(fn) {
-        grunt.util.spawn({cmd: 'git', args: ['push']}, function (err, result, code) {
+    function gitPush(branch, fn) {
+        grunt.util.spawn({cmd: 'git', args: ['push', 'origin', branch]}, function (err, result, code) {
             fn(err);
         });
     }
+
 
     function gitTag(version, fn) {
         grunt.util.spawn({

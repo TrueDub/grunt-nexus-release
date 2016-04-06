@@ -142,6 +142,12 @@ Optional
 
 Specifies the name of the folder to be injected inside the artifact. If not specified, this will be auto-generated.
 
+#### options.branch
+Type: `String`
+Optional
+
+Git branch to push the changes to. Defaults to develop
+
 #### options.commitPrefix
 Type: `String`
 Optional
@@ -210,3 +216,4 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
  Version | Date | Change summary
  ------|---------|--------------
  0.1.0 | April 6 2016 | initial plugin release
+ 0.2.0 | April 6 2016 | allowed setting of git branch
