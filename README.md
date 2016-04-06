@@ -207,4 +207,6 @@ In order to customize the output archive, please look at the documenations for t
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
+ Version | Date | Change summary
+ ------|---------|--------------
+ 0.1.0 | April 6 2016 | initial plugin release
